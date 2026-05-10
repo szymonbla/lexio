@@ -1,3 +1,6 @@
 [2026-05-10] Issue #2 — Backend #1 — Project scaffolding
   Status: DONE
   Notes: Added @hono/swagger-ui separately (not bundled with zod-openapi); env.ts uses a function wrapper so TypeScript knows the returned value is non-undefined after process.exit.
+[2026-05-10] Issue #3 — Backend #2 — DB schema + Word Repository
+  Status: DONE
+  Notes: Used bun:sqlite (drizzle-orm/bun-sqlite) for runtime; needed better-sqlite3 as devDep for drizzle-kit CLI. Repository methods are async since drizzle extends QueryPromise.

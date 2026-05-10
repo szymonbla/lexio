@@ -116,6 +116,7 @@ A good test exercises the module's public contract through its interface, not it
 ## Progress
 
 - [x] #2 Backend scaffolding — Hono + OpenAPI + env validation + health endpoint
+- [x] #3 DB schema + Word Repository — Drizzle/bun:sqlite, Word+WordContext tables, migrations, unit tests
 
 ## Further Notes
 
