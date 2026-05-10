@@ -1,0 +1,3 @@
+[2026-05-10] Issue #2 — Backend #1 — Project scaffolding
+  Status: DONE
+  Notes: Added @hono/swagger-ui separately (not bundled with zod-openapi); env.ts uses a function wrapper so TypeScript knows the returned value is non-undefined after process.exit.

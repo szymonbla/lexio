@@ -113,6 +113,10 @@ A good test exercises the module's public contract through its interface, not it
 - Multi-user support, registration, login — Layer 3
 - Async exercise polling — Layer 1
 
+## Progress
+
+- [x] #2 Backend scaffolding — Hono + OpenAPI + env validation + health endpoint
+
 ## Further Notes
 
 - Stack: Node.js + TypeScript, Hono + `@hono/node-server`, Drizzle ORM, better-sqlite3, Zod, Biome
