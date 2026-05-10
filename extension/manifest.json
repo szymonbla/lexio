@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Lexio",
+  "version": "0.1.0",
+  "description": "Capture words while reading",
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/index.ts"]
+    }
+  ],
+  "options_page": "src/options/index.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
