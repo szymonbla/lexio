@@ -1,6 +1,8 @@
 import { serve } from "@hono/node-server";
-import { app } from "./app.js";
+import { createApp } from "./app.js";
 import { env } from "./env.js";
+
+const app = createApp();
 
 serve({ fetch: app.fetch, port: env.PORT }, (info) => {
   console.log(`Server running on port ${info.port}`);

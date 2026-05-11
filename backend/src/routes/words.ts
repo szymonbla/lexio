@@ -20,6 +20,7 @@ const ErrorSchema = z.object({ error: z.string() });
 const postWordsRoute = createRoute({
   method: "post",
   path: "/words",
+  tags: ["words"],
   request: {
     body: {
       content: {

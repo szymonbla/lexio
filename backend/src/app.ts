@@ -7,31 +7,37 @@ import { createDeepLTranslator } from "./deepl-client.js";
 import { env } from "./env.js";
 import { createWordsRouter } from "./routes/words.js";
 
-export const app = new OpenAPIHono();
+export function createApp() {
+  const app = new OpenAPIHono();
 
-app.openapi(
-  createRoute({
-    method: "get",
-    path: "/health",
-    responses: {
-      200: {
-        description: "Health check",
-        content: { "application/json": { schema: z.object({ status: z.string() }) } },
+  app.openapi(
+    createRoute({
+      method: "get",
+      path: "/health",
+      tags: ["health"],
+      responses: {
+        200: {
+          description: "Health check",
+          content: { "application/json": { schema: z.object({ status: z.string() }) } },
+        },
       },
-    },
-  }),
-  (c) => c.json({ status: "ok" })
-);
+    }),
+    (c) => c.json({ status: "ok" })
+  );
 
-const repo = new WordRepository(db);
-const translate = createDeepLTranslator(env.DEEPL_API_KEY);
-const wordsRouter = createWordsRouter({ repo, translate });
+  const wordsRouter = createWordsRouter({
+    repo: new WordRepository(db),
+    translate: createDeepLTranslator(env.DEEPL_API_KEY),
+  });
 
-app.route("/", wordsRouter);
+  app.route("/", wordsRouter);
 
-app.doc("/openapi.json", {
-  openapi: "3.0.0",
-  info: { title: "Lexio API", version: "0.1.0" },
-});
+  app.doc("/openapi.json", {
+    openapi: "3.0.0",
+    info: { title: "Lexio API", version: "0.1.0" },
+  });
 
-app.get("/ui", swaggerUI({ url: "/openapi.json" }));
+  app.get("/ui", swaggerUI({ url: "/openapi.json" }));
+
+  return app;
+}
