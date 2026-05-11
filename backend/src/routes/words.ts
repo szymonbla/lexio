@@ -38,6 +38,7 @@ const postWordsRoute = createRoute({
     },
   },
   responses: {
+    200: { description: "Word already in collection", content: { "application/json": { schema: SuccessSchema } } },
     201: { description: "Word created", content: { "application/json": { schema: SuccessSchema } } },
     400: { description: "Validation error", content: { "application/json": { schema: ErrorSchema } } },
     502: { description: "Translation unavailable", content: { "application/json": { schema: ErrorSchema } } },
@@ -61,14 +62,17 @@ export function createWordsRouter({ repo, translate }: Deps) {
   router.openapi(postWordsRoute, async (c) => {
     const body = c.req.valid("json");
 
-    const word = await repo.insertWord({ word: body.word });
-    await repo.insertWordContext({
-      wordId: word.id,
+    const { word, isNew } = await repo.captureWord({
+      word: body.word,
       sentence: body.sentence,
       sourceUrl: body.sourceUrl,
       sourceTitle: body.sourceTitle,
       capturedAt: body.capturedAt,
     });
+
+    if (!isNew && word.translation !== null) {
+      return c.json({ id: word.id, translation: word.translation }, 200);
+    }
 
     let translation: string;
     try {
@@ -79,7 +83,7 @@ export function createWordsRouter({ repo, translate }: Deps) {
 
     await repo.updateTranslation(word.id, translation);
 
-    return c.json({ id: word.id, translation }, 201);
+    return c.json({ id: word.id, translation }, isNew ? 201 : 200);
   });
 
   return router;

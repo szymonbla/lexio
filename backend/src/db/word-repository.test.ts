@@ -12,6 +12,13 @@ function createTestDB() {
   return { db, sqlite };
 }
 
+const baseCapture = {
+  sentence: "He managed to acquire the painting.",
+  sourceUrl: "https://example.com",
+  sourceTitle: "Example",
+  capturedAt: "2026-05-11T10:00:00Z",
+};
+
 describe("WordRepository", () => {
   let repo: WordRepository;
   let cleanup: () => void;
@@ -24,16 +31,33 @@ describe("WordRepository", () => {
 
   afterEach(() => cleanup());
 
-  it("insertWord returns record with id and createdAt", async () => {
-    const word = await repo.insertWord({ word: "acquire" });
+  it("captureWord returns word with id and isNew: true for new word", async () => {
+    const { word, isNew } = await repo.captureWord({ word: "acquire", ...baseCapture });
     expect(word.id).toBeDefined();
-    expect(word.createdAt).toBeDefined();
     expect(word.word).toBe("acquire");
     expect(word.status).toBe("new");
+    expect(isNew).toBe(true);
+  });
+
+  it("captureWord for duplicate returns isNew: false with same word id", async () => {
+    const { word: first } = await repo.captureWord({ word: "acquire", ...baseCapture });
+    const { word: second, isNew } = await repo.captureWord({
+      word: "acquire",
+      ...baseCapture,
+      sentence: "Another sentence with acquire.",
+    });
+    expect(isNew).toBe(false);
+    expect(second.id).toBe(first.id);
+  });
+
+  it("captureWord is case-insensitive for duplicate detection", async () => {
+    await repo.captureWord({ word: "acquire", ...baseCapture });
+    const { isNew } = await repo.captureWord({ word: "Acquire", ...baseCapture });
+    expect(isNew).toBe(false);
   });
 
   it("findByWord is case-insensitive", async () => {
-    await repo.insertWord({ word: "acquire" });
+    await repo.captureWord({ word: "acquire", ...baseCapture });
     const found = await repo.findByWord("Acquire");
     expect(found).toBeDefined();
     expect(found!.word).toBe("acquire");
@@ -41,22 +65,5 @@ describe("WordRepository", () => {
 
   it("findByWord returns undefined when not found", async () => {
     expect(await repo.findByWord("missing")).toBeUndefined();
-  });
-
-  it("insertWordContext links to word via word_id", async () => {
-    const word = await repo.insertWord({ word: "ephemeral" });
-    const ctx = await repo.insertWordContext({
-      wordId: word.id,
-      sentence: "That was ephemeral.",
-      sourceUrl: "https://example.com",
-      sourceTitle: "Example",
-    });
-    expect(ctx.id).toBeDefined();
-    expect(ctx.wordId).toBe(word.id);
-  });
-
-  it("word column has UNIQUE constraint", async () => {
-    await repo.insertWord({ word: "unique" });
-    expect(async () => await repo.insertWord({ word: "unique" })).toThrow();
   });
 });

@@ -86,4 +86,25 @@ describe("POST /words", () => {
     const found = await repo.findByWord("acquire");
     expect(found).toBeDefined();
   });
+
+  it("returns 200 with existing translation for duplicate word, skips DeepL", async () => {
+    await app.request("/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validBody),
+    });
+
+    let translateCallCount = 0;
+    translateMock = async () => { translateCallCount++; return "nabyć"; };
+
+    const res = await app.request("/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...validBody, sentence: "She acquired a new skill." }),
+    });
+    expect(res.status).toBe(200);
+    const json = await res.json() as { id: string; translation: string };
+    expect(json.translation).toBe("nabyć");
+    expect(translateCallCount).toBe(0);
+  });
 });

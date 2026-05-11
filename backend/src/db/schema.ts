@@ -1,8 +1,8 @@
-import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const words = sqliteTable("word", {
-  id: int("id").primaryKey({ autoIncrement: true }),
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(datetime('now'))`),
@@ -12,8 +12,8 @@ export const words = sqliteTable("word", {
 });
 
 export const wordContexts = sqliteTable("word_context", {
-  id: int("id").primaryKey({ autoIncrement: true }),
-  wordId: int("word_id")
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  wordId: text("word_id")
     .notNull()
     .references(() => words.id),
   sentence: text("sentence").notNull(),

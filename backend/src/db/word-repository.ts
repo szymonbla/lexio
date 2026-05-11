@@ -2,21 +2,39 @@ import { eq, sql } from "drizzle-orm";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import type * as schema from "./schema.js";
 import { wordContexts, words } from "./schema.js";
-import type { NewWord, NewWordContext, Word, WordContext } from "./schema.js";
+import type { Word } from "./schema.js";
 
 type DB = BunSQLiteDatabase<typeof schema>;
+
+type CaptureWordInput = {
+  word: string;
+  sentence: string;
+  sourceUrl: string;
+  sourceTitle: string;
+  capturedAt: string;
+};
 
 export class WordRepository {
   constructor(private db: DB) {}
 
-  async insertWord(data: Omit<NewWord, "id" | "createdAt">): Promise<Word> {
-    const rows = await this.db.insert(words).values(data).returning();
-    return rows[0];
-  }
+  async captureWord(data: CaptureWordInput): Promise<{ word: Word; isNew: boolean }> {
+    const existing = await this.findByWord(data.word);
 
-  async insertWordContext(data: Omit<NewWordContext, "id">): Promise<WordContext> {
-    const rows = await this.db.insert(wordContexts).values(data).returning();
-    return rows[0];
+    const contextData = {
+      sentence: data.sentence,
+      sourceUrl: data.sourceUrl,
+      sourceTitle: data.sourceTitle,
+      capturedAt: data.capturedAt,
+    };
+
+    if (existing) {
+      await this.db.insert(wordContexts).values({ wordId: existing.id, ...contextData });
+      return { word: existing, isNew: false };
+    }
+
+    const [inserted] = await this.db.insert(words).values({ word: data.word }).returning();
+    await this.db.insert(wordContexts).values({ wordId: inserted.id, ...contextData });
+    return { word: inserted, isNew: true };
   }
 
   async updateTranslation(id: string, translation: string): Promise<void> {
