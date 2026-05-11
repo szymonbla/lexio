@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import type * as schema from "./schema.js";
 import { wordContexts, words } from "./schema.js";
@@ -17,6 +17,10 @@ export class WordRepository {
   async insertWordContext(data: Omit<NewWordContext, "id">): Promise<WordContext> {
     const rows = await this.db.insert(wordContexts).values(data).returning();
     return rows[0];
+  }
+
+  async updateTranslation(id: string, translation: string): Promise<void> {
+    await this.db.update(words).set({ translation }).where(eq(words.id, id));
   }
 
   async findByWord(word: string): Promise<Word | undefined> {

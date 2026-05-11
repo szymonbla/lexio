@@ -28,7 +28,6 @@ const deepl = new DeepLClient(env.DEEPL_API_KEY);
 const wordsRouter = createWordsRouter({
   repo,
   translate: (word, sentence) => deepl.translate(word, sentence),
-  apiToken: env.API_TOKEN,
 });
 
 app.route("/", wordsRouter);

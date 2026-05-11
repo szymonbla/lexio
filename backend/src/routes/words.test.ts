@@ -6,8 +6,6 @@ import * as schema from "../db/schema.js";
 import { WordRepository } from "../db/word-repository.js";
 import { createWordsRouter } from "./words.js";
 
-const API_TOKEN = "test-token";
-
 let translateMock: (word: string, sentence: string) => Promise<string>;
 
 function createTestSetup() {
@@ -18,7 +16,6 @@ function createTestSetup() {
   const app = createWordsRouter({
     repo,
     translate: (w, s) => translateMock(w, s),
-    apiToken: API_TOKEN,
   });
   return { app, repo, sqlite };
 }
@@ -46,30 +43,10 @@ describe("POST /words", () => {
 
   afterEach(() => cleanup());
 
-  it("returns 401 without Authorization header", async () => {
-    const res = await app.request("/words", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(validBody),
-    });
-    expect(res.status).toBe(401);
-    const json = await res.json();
-    expect(json).toEqual({ error: "Unauthorized" });
-  });
-
-  it("returns 401 with wrong token", async () => {
-    const res = await app.request("/words", {
-      method: "POST",
-      headers: { Authorization: "Bearer wrong", "Content-Type": "application/json" },
-      body: JSON.stringify(validBody),
-    });
-    expect(res.status).toBe(401);
-  });
-
   it("returns 400 with invalid body", async () => {
     const res = await app.request("/words", {
       method: "POST",
-      headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ word: "" }),
     });
     expect(res.status).toBe(400);
@@ -81,7 +58,7 @@ describe("POST /words", () => {
   it("saves Word and WordContext, returns 201 with id and translation", async () => {
     const res = await app.request("/words", {
       method: "POST",
-      headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(validBody),
     });
     expect(res.status).toBe(201);
@@ -99,7 +76,7 @@ describe("POST /words", () => {
 
     const res = await app.request("/words", {
       method: "POST",
-      headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(validBody),
     });
     expect(res.status).toBe(502);
