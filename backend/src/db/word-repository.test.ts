@@ -16,7 +16,6 @@ const baseCapture = {
   sentence: "He managed to acquire the painting.",
   sourceUrl: "https://example.com",
   sourceTitle: "Example",
-  capturedAt: "2026-05-11T10:00:00Z",
 };
 
 describe("WordRepository", () => {

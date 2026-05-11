@@ -7,7 +7,6 @@ const RequestBodySchema = z.object({
   sentence: z.string().min(1),
   sourceUrl: z.string().url(),
   sourceTitle: z.string().min(1),
-  capturedAt: z.string().min(1),
 });
 
 const CreatedSchema = z.object({
@@ -36,7 +35,6 @@ const postWordsRoute = createRoute({
             sentence: "The beauty of the moment was ephemeral, lasting only a few seconds.",
             sourceUrl: "https://example.com/article",
             sourceTitle: "Example Article",
-            capturedAt: "2026-05-11T10:00:00Z",
           },
         },
       },
@@ -73,7 +71,6 @@ export function createWordsRouter({ repo, translate }: Deps) {
       sentence: body.sentence,
       sourceUrl: body.sourceUrl,
       sourceTitle: body.sourceTitle,
-      capturedAt: body.capturedAt,
     });
 
     if (!isNew) {

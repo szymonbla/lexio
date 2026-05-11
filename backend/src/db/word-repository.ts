@@ -11,7 +11,6 @@ type CaptureWordInput = {
   sentence: string;
   sourceUrl: string;
   sourceTitle: string;
-  capturedAt: string;
 };
 
 export class WordRepository {
@@ -24,7 +23,7 @@ export class WordRepository {
       sentence: data.sentence,
       sourceUrl: data.sourceUrl,
       sourceTitle: data.sourceTitle,
-      capturedAt: data.capturedAt,
+      capturedAt: new Date().toISOString(),
     };
 
     if (existing) {

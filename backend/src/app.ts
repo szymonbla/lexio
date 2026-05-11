@@ -1,7 +1,9 @@
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { Database } from "bun:sqlite";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 import { z } from "zod";
-import { db } from "./db/index.js";
+import * as schema from "./db/schema.js";
 import { WordRepository } from "./db/word-repository.js";
 import { createDeepLTranslator } from "./deepl-client.js";
 import { env } from "./env.js";
@@ -24,6 +26,9 @@ export function createApp() {
     }),
     (c) => c.json({ status: "ok" })
   );
+
+  const sqlite = new Database(env.DATABASE_PATH);
+  const db = drizzle(sqlite, { schema });
 
   const wordsRouter = createWordsRouter({
     repo: new WordRepository(db),
