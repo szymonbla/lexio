@@ -14,7 +14,7 @@ export class WordRepository {
     return rows[0];
   }
 
-  async insertWordContext(data: Omit<NewWordContext, "id" | "capturedAt">): Promise<WordContext> {
+  async insertWordContext(data: Omit<NewWordContext, "id">): Promise<WordContext> {
     const rows = await this.db.insert(wordContexts).values(data).returning();
     return rows[0];
   }

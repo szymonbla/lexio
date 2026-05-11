@@ -4,3 +4,6 @@
 [2026-05-10] Issue #3 — Backend #2 — DB schema + Word Repository
   Status: DONE
   Notes: Used bun:sqlite (drizzle-orm/bun-sqlite) for runtime; needed better-sqlite3 as devDep for drizzle-kit CLI. Repository methods are async since drizzle extends QueryPromise.
+[2026-05-11] Issue #4 — Backend #3 — POST /words happy path
+  Status: DONE
+  Notes: Made createWordsRouter a factory accepting repo/translate/apiToken for testability; updated insertWordContext signature to accept optional capturedAt; DeepL errors return 502 after Word+WordContext are already saved.

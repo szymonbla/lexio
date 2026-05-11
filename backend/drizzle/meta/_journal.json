@@ -8,6 +8,13 @@
       "when": 1778413913407,
       "tag": "0000_busy_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1778414239996,
+      "tag": "0001_lazy_thor_girl",
+      "breakpoints": true
     }
   ]
 }
