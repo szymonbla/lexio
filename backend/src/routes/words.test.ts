@@ -87,12 +87,14 @@ describe("POST /words", () => {
     expect(found).toBeDefined();
   });
 
-  it("returns 200 with existing translation for duplicate word, skips DeepL", async () => {
-    await app.request("/words", {
+  it("duplicate returns 200 with duplicate:true and existingWord, skips DeepL, saves new context", async () => {
+    const first = await app.request("/words", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(validBody),
     });
+    const firstJson = await first.json() as { id: string; translation: string };
+    const wordId = firstJson.id;
 
     let translateCallCount = 0;
     translateMock = async () => { translateCallCount++; return "nabyć"; };
@@ -103,8 +105,30 @@ describe("POST /words", () => {
       body: JSON.stringify({ ...validBody, sentence: "She acquired a new skill." }),
     });
     expect(res.status).toBe(200);
-    const json = await res.json() as { id: string; translation: string };
-    expect(json.translation).toBe("nabyć");
+    const json = await res.json() as { duplicate: boolean; existingWord: { id: string; status: string } };
+    expect(json.duplicate).toBe(true);
+    expect(json.existingWord.id).toBe(wordId);
+    expect(typeof json.existingWord.status).toBe("string");
     expect(translateCallCount).toBe(0);
+
+    const contextCount = await repo.countContextsByWordId(wordId);
+    expect(contextCount).toBe(2);
+  });
+
+  it("duplicate detection is case-insensitive", async () => {
+    await app.request("/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validBody),
+    });
+
+    const res = await app.request("/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...validBody, word: "ACQUIRE" }),
+    });
+    expect(res.status).toBe(200);
+    const json = await res.json() as { duplicate: boolean };
+    expect(json.duplicate).toBe(true);
   });
 });

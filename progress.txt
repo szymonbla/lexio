@@ -7,3 +7,6 @@
 [2026-05-11] Issue #4 — Backend #3 — POST /words happy path
   Status: DONE
   Notes: Made createWordsRouter a factory accepting repo/translate/apiToken for testability; updated insertWordContext signature to accept optional capturedAt; DeepL errors return 502 after Word+WordContext are already saved.
+[2026-05-11] Issue #5 — Backend #4 — POST /words duplicate handling
+  Status: DONE
+  Notes: Replaced SuccessSchema with CreatedSchema/DuplicateSchema; response format { duplicate:true, existingWord:{id,status} }; added countContextsByWordId to repo for test assertions.

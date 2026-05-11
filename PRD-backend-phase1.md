@@ -118,6 +118,7 @@ A good test exercises the module's public contract through its interface, not it
 - [x] #2 Backend scaffolding — Hono + OpenAPI + env validation + health endpoint
 - [x] #3 DB schema + Word Repository — Drizzle/bun:sqlite, Word+WordContext tables, migrations, unit tests
 - [x] #4 POST /words happy path — auth middleware, DeepL client, handler, E2E tests
+- [x] #5 POST /words duplicate handling — 200 with duplicate:true+existingWord, context saved, DeepL skipped
 
 ## Further Notes
 

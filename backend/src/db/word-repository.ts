@@ -48,4 +48,12 @@ export class WordRepository {
       .where(sql`lower(${words.word}) = lower(${word})`);
     return rows[0];
   }
+
+  async countContextsByWordId(wordId: string): Promise<number> {
+    const rows = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(wordContexts)
+      .where(eq(wordContexts.wordId, wordId));
+    return rows[0].count;
+  }
 }

@@ -10,9 +10,14 @@ const RequestBodySchema = z.object({
   capturedAt: z.string().min(1),
 });
 
-const SuccessSchema = z.object({
+const CreatedSchema = z.object({
   id: z.string(),
   translation: z.string(),
+});
+
+const DuplicateSchema = z.object({
+  duplicate: z.literal(true),
+  existingWord: z.object({ id: z.string(), status: z.string() }),
 });
 
 const ErrorSchema = z.object({ error: z.string() });
@@ -39,8 +44,8 @@ const postWordsRoute = createRoute({
     },
   },
   responses: {
-    200: { description: "Word already in collection", content: { "application/json": { schema: SuccessSchema } } },
-    201: { description: "Word created", content: { "application/json": { schema: SuccessSchema } } },
+    200: { description: "Duplicate — word already in collection", content: { "application/json": { schema: DuplicateSchema } } },
+    201: { description: "Word created", content: { "application/json": { schema: CreatedSchema } } },
     400: { description: "Validation error", content: { "application/json": { schema: ErrorSchema } } },
     502: { description: "Translation unavailable", content: { "application/json": { schema: ErrorSchema } } },
   },
@@ -71,8 +76,8 @@ export function createWordsRouter({ repo, translate }: Deps) {
       capturedAt: body.capturedAt,
     });
 
-    if (!isNew && word.translation !== null) {
-      return c.json({ id: word.id, translation: word.translation }, 200);
+    if (!isNew) {
+      return c.json({ duplicate: true as const, existingWord: { id: word.id, status: word.status } }, 200);
     }
 
     let translation: string;
@@ -84,7 +89,7 @@ export function createWordsRouter({ repo, translate }: Deps) {
 
     await repo.updateTranslation(word.id, translation);
 
-    return c.json({ id: word.id, translation }, isNew ? 201 : 200);
+    return c.json({ id: word.id, translation }, 201);
   });
 
   return router;
