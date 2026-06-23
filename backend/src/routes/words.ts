@@ -2,6 +2,32 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import type { WordRepository } from "../db/word-repository.js";
 
+const WordContextSchema = z.object({
+  sourceUrl: z.string(),
+  sourceTitle: z.string(),
+  capturedAt: z.string(),
+});
+
+const WordEntrySchema = z.object({
+  id: z.string(),
+  word: z.string(),
+  status: z.string(),
+  translation: z.string().nullable(),
+  createdAt: z.string(),
+  contexts: z.array(WordContextSchema),
+});
+
+const getWordsRoute = createRoute({
+  method: "get",
+  path: "/words",
+  tags: ["words"],
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: { description: "Word list", content: { "application/json": { schema: z.array(WordEntrySchema) } } },
+    401: { description: "Unauthorized", content: { "application/json": { schema: z.object({ error: z.string() }) } } },
+  },
+});
+
 const RequestBodySchema = z.object({
   word: z.string().min(1),
   sentence: z.string().min(1),
@@ -53,9 +79,10 @@ const postWordsRoute = createRoute({
 type Deps = {
   repo: WordRepository;
   translate: (word: string, sentence: string) => Promise<string>;
+  apiToken: string;
 };
 
-export function createWordsRouter({ repo, translate }: Deps) {
+export function createWordsRouter({ repo, translate, apiToken }: Deps) {
   const router = new OpenAPIHono({
     defaultHook: (result, c) => {
       if (!result.success) {
@@ -92,6 +119,16 @@ export function createWordsRouter({ repo, translate }: Deps) {
     await repo.updateTranslation(word.id, translation);
 
     return c.json({ id: word.id, translation }, 201);
+  });
+
+  router.openapi(getWordsRoute, async (c) => {
+    const auth = c.req.header("Authorization");
+    if (!auth || auth !== `Bearer ${apiToken}`) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const wordList = await repo.listWords();
+    return c.json(wordList, 200);
   });
 
   return router;

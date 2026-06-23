@@ -8,6 +8,8 @@ import { createWordsRouter } from "./words.js";
 
 let translateMock: (word: string, sentence: string) => Promise<string>;
 
+const TEST_TOKEN = "test-api-token";
+
 function createTestSetup() {
   const sqlite = new Database(":memory:");
   const db = drizzle(sqlite, { schema });
@@ -16,6 +18,7 @@ function createTestSetup() {
   const app = createWordsRouter({
     repo,
     translate: (w, s) => translateMock(w, s),
+    apiToken: TEST_TOKEN,
   });
   return { app, repo, sqlite };
 }
@@ -123,6 +126,44 @@ describe("POST /words", () => {
     expect(res.status).toBe(422);
     const json = await res.json() as { error: string };
     expect(typeof json.error).toBe("string");
+  });
+
+  it("GET /words returns 401 when Authorization header missing", async () => {
+    const res = await app.request("/words", { method: "GET" });
+    expect(res.status).toBe(401);
+  });
+
+  it("GET /words returns 401 with invalid token", async () => {
+    const res = await app.request("/words", {
+      method: "GET",
+      headers: { Authorization: "Bearer wrong-token" },
+    });
+    expect(res.status).toBe(401);
+  });
+
+  it("GET /words returns captured words with contexts sorted by createdAt desc", async () => {
+    await app.request("/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validBody),
+    });
+    await app.request("/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...validBody, word: "serendipity", sentence: "A moment of serendipity." }),
+    });
+
+    const res = await app.request("/words", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${TEST_TOKEN}` },
+    });
+    expect(res.status).toBe(200);
+    const json = await res.json() as { word: string; status: string; translation: string | null; createdAt: string; contexts: { sourceUrl: string; sourceTitle: string; capturedAt: string }[] }[];
+    expect(json.length).toBe(2);
+    expect(typeof json[0].word).toBe("string");
+    expect(typeof json[0].status).toBe("string");
+    expect(Array.isArray(json[0].contexts)).toBe(true);
+    expect(json[0].contexts[0].sourceUrl).toBe(validBody.sourceUrl);
   });
 
   it("duplicate detection is case-insensitive", async () => {

@@ -16,3 +16,6 @@
 [2026-06-23] Issue #7 — Language config — NATIVE_LANG + TARGET_LANG env vars
   Status: DONE
   Notes: source_lang=TARGET_LANG, target_lang=NATIVE_LANG (user reads in target, translates to native); fail-fast via Zod schema.
+[2026-06-23] Issue #8 — GET /words — word list with capture sources
+  Status: DONE
+  Notes: apiToken passed as dep to router (not middleware) to avoid wiring complexity; listWords does two queries + in-memory join.

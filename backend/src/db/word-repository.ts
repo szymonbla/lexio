@@ -55,4 +55,18 @@ export class WordRepository {
       .where(eq(wordContexts.wordId, wordId));
     return rows[0].count;
   }
+
+  async listWords(): Promise<(Word & { contexts: { sourceUrl: string; sourceTitle: string; capturedAt: string }[] })[]> {
+    const allWords = await this.db.select().from(words).orderBy(sql`${words.createdAt} desc`);
+    const allContexts = await this.db.select().from(wordContexts);
+
+    const contextsByWordId = new Map<string, { sourceUrl: string; sourceTitle: string; capturedAt: string }[]>();
+    for (const ctx of allContexts) {
+      const existing = contextsByWordId.get(ctx.wordId) ?? [];
+      existing.push({ sourceUrl: ctx.sourceUrl, sourceTitle: ctx.sourceTitle, capturedAt: ctx.capturedAt });
+      contextsByWordId.set(ctx.wordId, existing);
+    }
+
+    return allWords.map((w) => ({ ...w, contexts: contextsByWordId.get(w.id) ?? [] }));
+  }
 }
