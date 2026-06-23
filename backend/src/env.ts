@@ -6,6 +6,8 @@ const envSchema = z.object({
   DEEPL_API_KEY: z.string().min(1),
   DATABASE_PATH: z.string().default("./lexio.db"),
   PORT: z.coerce.number().default(8000),
+  NATIVE_LANG: z.string().min(1),
+  TARGET_LANG: z.string().min(1),
 });
 
 function loadEnv() {

@@ -314,3 +314,4 @@ US-015 — BACKLOG (moved: single-word enforcement adopted instead; phrases defe
 ## Progress
 
 - #6 Single-word enforcement: extension rejects multi-word selections client-side; backend returns 422 for whitespace in word field; US-015 moved to backlog
+- #7 Language config: NATIVE_LANG + TARGET_LANG env vars wired into DeepL translator; fail-fast on startup if missing

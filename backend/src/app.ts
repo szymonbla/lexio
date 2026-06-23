@@ -39,7 +39,7 @@ export function createApp() {
 
   const wordsRouter = createWordsRouter({
     repo: new WordRepository(db),
-    translate: createDeepLTranslator(env.DEEPL_API_KEY),
+    translate: createDeepLTranslator(env.DEEPL_API_KEY, env.TARGET_LANG, env.NATIVE_LANG),
   });
 
   app.route("/", wordsRouter);

@@ -13,3 +13,6 @@
 [2026-06-23] Issue #6 — Single-word enforcement — replace US-015
   Status: DONE
   Notes: Extension changed from words <= 5 to words === 1; backend adds explicit 422 guard after body parse since defaultHook returns 400; US-015 demoted to backlog in PRD.
+[2026-06-23] Issue #7 — Language config — NATIVE_LANG + TARGET_LANG env vars
+  Status: DONE
+  Notes: source_lang=TARGET_LANG, target_lang=NATIVE_LANG (user reads in target, translates to native); fail-fast via Zod schema.

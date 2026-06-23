@@ -1,4 +1,4 @@
-export function createDeepLTranslator(apiKey: string) {
+export function createDeepLTranslator(apiKey: string, sourceLang: string, targetLang: string) {
   return async (word: string, sentence: string): Promise<string> => {
     const res = await fetch("https://api-free.deepl.com/v2/translate", {
       method: "POST",
@@ -6,7 +6,7 @@ export function createDeepLTranslator(apiKey: string) {
         Authorization: `DeepL-Auth-Key ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: [word], target_lang: "PL", context: sentence }),
+      body: JSON.stringify({ text: [word], source_lang: sourceLang, target_lang: targetLang, context: sentence }),
     });
 
     if (!res.ok) throw new Error(`DeepL error: ${res.status}`);
