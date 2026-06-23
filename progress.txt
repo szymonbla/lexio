@@ -10,3 +10,6 @@
 [2026-05-11] Issue #5 — Backend #4 — POST /words duplicate handling
   Status: DONE
   Notes: Replaced SuccessSchema with CreatedSchema/DuplicateSchema; response format { duplicate:true, existingWord:{id,status} }; added countContextsByWordId to repo for test assertions.
+[2026-06-23] Issue #6 — Single-word enforcement — replace US-015
+  Status: DONE
+  Notes: Extension changed from words <= 5 to words === 1; backend adds explicit 422 guard after body parse since defaultHook returns 400; US-015 demoted to backlog in PRD.

@@ -114,6 +114,17 @@ describe("POST /words", () => {
     expect(contextCount).toBe(2);
   });
 
+  it("returns 422 when word contains whitespace", async () => {
+    const res = await app.request("/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...validBody, word: "two words" }),
+    });
+    expect(res.status).toBe(422);
+    const json = await res.json() as { error: string };
+    expect(typeof json.error).toBe("string");
+  });
+
   it("duplicate detection is case-insensitive", async () => {
     await app.request("/words", {
       method: "POST",

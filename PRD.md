@@ -283,14 +283,7 @@ Kryteria akceptacji:
 - Extension nie traci danych — opcjonalne przechowanie w local storage do ponownego wysłania
 - Komunikat błędu znika po 3 sekundach bez interakcji użytkownika
 
-US-015
-Tytuł: Zaznaczenie fragmentu dłuższego niż jedno słowo
-Opis: Jako użytkownik, chcę żeby system poprawnie obsłużył zaznaczenie frazy lub wyrażenia (np. "machine learning"), a nie tylko pojedynczego słowa.
-Kryteria akceptacji:
-- System akceptuje zaznaczenia do 5 słów jako poprawne frazy do nauki
-- Zaznaczenia dłuższe niż 5 słów są ignorowane lub skracane do pierwszych 5 słów
-- Fraza jest traktowana jako jednostka (zapisana jako całość w polu word)
-- Ćwiczenie generowane dla frazy uwzględnia jej znaczenie całościowe
+US-015 — BACKLOG (moved: single-word enforcement adopted instead; phrases deferred)
 
 ---
 
@@ -317,3 +310,7 @@ Kryteria akceptacji:
 - Dostępność backendu: uptime >= 99% w miesięcznym oknie
 - Wskaźnik błędów AI API: % requestów zakończonych niepowodzeniem po 2 próbach (cel: <5%)
 - Czas odpowiedzi backendu dla POST /words: p95 < 500ms (bez czasu generowania AI)
+
+## Progress
+
+- #6 Single-word enforcement: extension rejects multi-word selections client-side; backend returns 422 for whitespace in word field; US-015 moved to backlog

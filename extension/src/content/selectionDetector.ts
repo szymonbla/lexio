@@ -20,7 +20,7 @@ export function initSelectionDetector(onSelection: SelectionListener): () => voi
     }
 
     const words = countWords(text);
-    if (words < 1 || words > 5) {
+    if (words !== 1) {
       onSelection(null);
       return;
     }

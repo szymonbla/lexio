@@ -45,6 +45,7 @@ const postWordsRoute = createRoute({
     200: { description: "Duplicate — word already in collection", content: { "application/json": { schema: DuplicateSchema } } },
     201: { description: "Word created", content: { "application/json": { schema: CreatedSchema } } },
     400: { description: "Validation error", content: { "application/json": { schema: ErrorSchema } } },
+    422: { description: "Multi-word input rejected", content: { "application/json": { schema: ErrorSchema } } },
     502: { description: "Translation unavailable", content: { "application/json": { schema: ErrorSchema } } },
   },
 });
@@ -65,6 +66,10 @@ export function createWordsRouter({ repo, translate }: Deps) {
 
   router.openapi(postWordsRoute, async (c) => {
     const body = c.req.valid("json");
+
+    if (/\s/.test(body.word)) {
+      return c.json({ error: "word must be a single token" }, 422);
+    }
 
     const { word, isNew } = await repo.captureWord({
       word: body.word,
